@@ -1,0 +1,15 @@
+void reverse(int A[]) {
+    int left = 0;
+    int right = #A - 1;
+    while (left < right) {
+        int temp = A[left];
+        A[left] = A[right];
+        A[right] = temp;
+        left = left + 1;
+        right = right - 1;
+    }
+}
+int main(int argi[]) {
+    reverse(argi);
+    return argi[0]; // Just to return something
+}

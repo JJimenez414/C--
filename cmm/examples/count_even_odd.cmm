@@ -1,0 +1,14 @@
+int main(int argi[]) {
+    int even = 0;
+    int odd = 0;
+    int i = 0;
+    while (i < #argi) {
+        if (argi[i] % 2 == 0) {
+            even = even + 1;
+        } else {
+            odd = odd + 1;
+        }
+        i = i + 1;
+    }
+    return even - odd;
+}

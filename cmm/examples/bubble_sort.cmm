@@ -1,0 +1,25 @@
+void bubble_sort(int A[]) {
+    int n = #A ;
+    int i = 0;
+    while (i < n - 1) {
+        int j = 0;
+        while (j < n - i - 1) {
+            if (A[j] > A[j + 1]) {
+                int temp = A[j];
+                A[j] = A[j + 1];
+                A[j + 1] = temp;
+            }
+            j = j + 1;
+        }
+        i = i + 1;
+    }
+}
+
+int main(int argi[]) {
+    if (#argi > 0) {
+        bubble_sort(argi);
+        return argi[0];
+    } else {
+        return -1 ; 
+    }
+}

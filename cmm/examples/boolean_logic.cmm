@@ -1,0 +1,9 @@
+int main(int argi[]) {
+    if (#argi < 3) {
+        return -1;
+    }
+    boolean A = argi[0];
+    boolean B = argi[1];
+    boolean C = argi[2];
+    return (A && B) || C;
+}

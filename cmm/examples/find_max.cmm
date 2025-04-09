@@ -1,0 +1,14 @@
+int main(int argi[]) {
+    if (#argi == 0) {
+        return -1;
+    }
+    int max = argi[0];
+    int i = 1;
+    while (i < #argi) {
+        if (argi[i] > max) {
+            max = argi[i];
+        }
+        i = i + 1;
+    }
+    return max;
+}

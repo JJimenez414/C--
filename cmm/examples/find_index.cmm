@@ -1,0 +1,14 @@
+int find(int A[], int key) {
+    int i = 0;
+    while (i < #A) {
+        if (A[i] == key) {
+            return i;
+        }
+        i = i + 1;
+    }
+    return -1;
+}
+
+int main(int argi[]) {
+    return find(argi, argi[#argi-1]);
+}

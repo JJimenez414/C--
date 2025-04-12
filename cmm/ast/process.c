@@ -84,6 +84,18 @@ void traverse(AST node) {
                 traverse(node->if_stmt.else_branch);
             }
             break;
+        
+        case AST_TERNARY: // travers the ternary node
+            traverse(node->ternary.cond);
+            putchar(' ');
+            _puts("?");
+            putchar(' ');
+            traverse(node->ternary.then_branch);
+            putchar(' ');
+            _puts(":");
+            putchar(' ');
+            traverse(node->ternary.else_branch);
+            break;
 
         case AST_WHILE:
             _puts("while") ; 

@@ -30,6 +30,7 @@ AST PROGRAM; // make it global, so main() can get it.
 %token INT BOOLEAN IF ELSE WHILE RETURN VOID
 %token SEMICOLON COMMA COUNT LBRACKET RBRACKET LBRACE RBRACE LPAREN RPAREN
 %token PLUS MINUS MUL DIV MOD EXP ASSIGN AND OR NOT LT LE GT GE EQ NE INC DEC
+%token TERNARY_IF TERNARY_ELSE // are tokens for ternary: TERNARY_IF = ? TERNARY_ELSE = :
 
 /* Operator Precedence */
 %right ASSIGN
@@ -93,7 +94,7 @@ stmt_list   : stmt              { $$ = ast_list(ALIST_STMTS, $1) ; }
             | stmt_list stmt    { $$ = append_to_list($1,$2) ; }
             ;
 
-stmt : var_decl | expr_stmt | if_stmt | while_stmt | return_stmt | block;
+stmt : var_decl | expr_stmt | if_stmt | while_stmt | return_stmt | block ;
 
 expr_stmt : expr SEMICOLON { $$ = ast_es($1); };
 
@@ -103,7 +104,7 @@ if_stmt : IF LPAREN expr RPAREN stmt            { $$ = ast_if($3, $5, NULL); }
 
 while_stmt : WHILE LPAREN expr RPAREN stmt { $$ = ast_while($3, $5); } ;
 
-return_stmt: RETURN expr SEMICOLON { $$ = ast_return($2); } ;
+return_stmt : RETURN expr SEMICOLON { $$ = ast_return($2); } ;
 
 block : LBRACE stmt_list RBRACE  { $$ = $2; } ;
 
@@ -134,6 +135,7 @@ expr : l_expr ASSIGN expr        { $$ = ast_binop(BOP_ASSIGN, $1, $3); }
      | l_expr DEC                { $$ = ast_unop(UOP_POSTMM, $1); }
      | DEC l_expr                { $$ = ast_unop(UOP_PREMM, $2); }
      | COUNT IDENT               { $$ = ast_al($2) ;}
+     | expr TERNARY_IF expr TERNARY_ELSE expr { $$ = ast_ternary($1, $3, $5); } ; // ternary conditional expression: cond ? then_branch : else_branch
      ;
 
 l_expr  : IDENT                         { $$ = ast_scalar($1) ; }

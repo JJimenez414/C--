@@ -24,6 +24,8 @@ typedef enum {
     ALIST_ARGS,     // list of arguments (function call)
     ALIST_TOP_DECL, // list of top-level declarations (functions and variables)
     ALIST_VAR_DECL, // list of AST_VD_ITEM's (part of the AST_VAR_DECL statement)
+    
+    AST_TERNARY,        // ternary statement
 } AstKind;
 
 typedef enum {
@@ -77,6 +79,7 @@ struct __AST {
         struct { char *type; AST vars;} vdecl ;                     // AST_VAR_DECL
         struct { char *name; AST asize; AST init ; } vd_item ;      // AST_VD_ITEM 
         struct { char *type; char *name; int isarray ;} param ;     // AST_PARAM
+        struct { AST cond, then_branch, else_branch ; } ternary ;     // TERNARY
     };
 } ;
 
@@ -101,5 +104,7 @@ AST ast_param(char *type, char *name, int isarray) ;
 AST ast_scalar(char *name) ; 
 AST ast_ae(char *array, AST index) ;
 AST ast_al(char *name) ; 
+
+AST ast_ternary(AST cond, AST then_branch, AST else_branch) ; // ternary
 
 #endif

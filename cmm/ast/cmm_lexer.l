@@ -42,6 +42,10 @@
 "="            { return ASSIGN; }
 "#"             { return COUNT; }
 
+    /* TERNARY OPERATORS */
+"?"            { return TERNARY_IF; }
+":"            { return TERNARY_ELSE; }
+
     /* Increment and Decrement */
 "--"            { return DEC; }
 "++"            { return INC; }

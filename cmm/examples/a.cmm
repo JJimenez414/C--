@@ -1,0 +1,3 @@
+int main(int argi[]) {
+    int a = 1 == 1 ? 5 : 3;
+}

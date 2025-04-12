@@ -27,6 +27,8 @@ const char* AstKindNames[] = {
     /* ALIST_ARGS     */ "ALIST_ARGS",     // list of arguments (function call)
     /* ALIST_TOP_DECL */ "ALIST_TOP_DECL", // list of top-level declarations (functions and variables)
     /* ALIST_VAR_DECL */ "ALIST_VAR_DECL", // list of AST_VD_ITEM's (part of the AST_VAR_DECL statement)
+
+    /* TERNARY        */ "AST_TERNARY",        // TERNARY STATEMENT
 };
 
 
@@ -118,6 +120,15 @@ AST ast_if(AST cond, AST then_branch, AST else_branch) {
     n->if_stmt.cond = cond;
     n->if_stmt.then_branch = then_branch;
     n->if_stmt.else_branch = else_branch;
+    return n;
+}
+
+AST ast_ternary(AST cond, AST then_branch, AST else_branch) { // handle ternary node
+    AST n = newAST(AST_TERNARY);
+    n->ternary.cond = cond;
+    n->ternary.then_branch = then_branch;
+    n->ternary.else_branch = else_branch;
+    // printf("ternary node \n");  debug
     return n;
 }
 

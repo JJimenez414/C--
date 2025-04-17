@@ -1,10 +1,46 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include "ast.h"
 
-static int node_count = 0;
+static int node_count = 0 ;
+void traverse(AST node) ; 
+
 
 void _puts(const char * str) {
     fputs(str, stdout) ; 
+}
+
+AST ternary_check(AST node) {
+
+        AST cond = node->ternary.cond ; // get condition
+
+        int operandA = cond->binop.a->ival ; // get the first operand value
+        int operandB = cond->binop.b->ival ; // get the second operand value
+
+        AST then_branch = node->ternary.then_branch ; // store then_branch node
+        AST else_branch = node->ternary.else_branch ; // store else_branch node
+
+        bool result; // store the result for the condition
+
+        // depending on the condition, we will evaluate it
+        switch (cond->binop.op) {
+            case BOP_PLUS: result = operandA + operandB; break;
+            case BOP_MINUS: result = operandA - operandB; break;
+            case BOP_MUL: result = operandA * operandB; break;
+            case BOP_DIV: result = operandB != 0 ? operandA / operandB : 0; break;
+            case BOP_EQ:  result = operandA == operandB; break;
+            case BOP_NE: result = operandA != operandB; break;
+            case BOP_LT:  result = operandA < operandB; break;
+            case BOP_GT:  result = operandA > operandB; break;
+            case BOP_LE: result = operandA <= operandB; break;
+            case BOP_GE: result = operandA >= operandB; break;
+            case BOP_AND: result = operandA && operandB; break;
+            case BOP_OR:  result = operandA || operandB; break;
+            default: return node; // unknown op
+        }
+    
+    // based on the result return the node we are going to traverse.
+    return result ? then_branch : else_branch ;
 }
 
 void traverse(AST node) {
@@ -37,7 +73,7 @@ void traverse(AST node) {
             putchar(']') ; 
             break ;
 
-        case AST_BINOP:
+        case AST_BINOP:   
             putchar('(') ;
             _puts(BONames[node->binop.op]) ; 
             putchar(' ') ; 
@@ -86,15 +122,25 @@ void traverse(AST node) {
             break;
         
         case AST_TERNARY: // travers the ternary node
-            traverse(node->ternary.cond);
-            putchar(' ');
-            _puts("?");
-            putchar(' ');
-            traverse(node->ternary.then_branch);
-            putchar(' ');
-            _puts(":");
-            putchar(' ');
-            traverse(node->ternary.else_branch);
+
+            // check if the condition is a binop
+            // check if both values are constants
+            // if so ternary_check else print the terenary expression
+
+            if (node->ternary.cond->kind == AST_BINOP){
+                AST returned_node = ternary_check(node) ; // call ternary_check to do folding
+                traverse(returned_node) ; // traverse the branch we got
+            } else { // in the case that the operands are not constants and the condition is not a binary operator, we print the entire ternary expression.
+                traverse(node->ternary.cond);
+                putchar(' ');
+                _puts("?");
+                putchar(' ');
+                traverse(node->ternary.then_branch);
+                putchar(' ');
+                _puts(":");
+                putchar(' ');
+                traverse(node->ternary.else_branch);
+            }
             break;
 
         case AST_WHILE:

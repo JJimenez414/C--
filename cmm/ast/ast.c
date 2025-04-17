@@ -101,6 +101,7 @@ AST ast_unop(u_op op, AST a) {
     return n;
 }
 
+// cond
 AST ast_binop(b_op op, AST a, AST b) {
     AST n = newAST(AST_BINOP) ; 
     n->binop.op = op;
@@ -128,7 +129,6 @@ AST ast_ternary(AST cond, AST then_branch, AST else_branch) { // handle ternary 
     n->ternary.cond = cond;
     n->ternary.then_branch = then_branch;
     n->ternary.else_branch = else_branch;
-    // printf("ternary node \n");  debug
     return n;
 }
 

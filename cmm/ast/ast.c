@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "ast.h"
 
 const char* AstKindNames[] = {
@@ -58,6 +59,34 @@ const char * UONames[] = {
     "++",
     "--",
 }  ; 
+
+AST ternary_check(AST cond, AST then_branch, AST else_branch) {
+
+
+    int operandA = cond->binop.a->ival ; // get the first operand value
+    int operandB = cond->binop.b->ival ; // get the second operand value
+
+    bool result; // store the result for the condition
+
+    // depending on the condition, we will evaluate it
+    switch (cond->binop.op) {
+        case BOP_PLUS: result = operandA + operandB; break;
+        case BOP_MINUS: result = operandA - operandB; break;
+        case BOP_MUL: result = operandA * operandB; break;
+        case BOP_DIV: result = operandB != 0 ? operandA / operandB : 0; break;
+        case BOP_EQ:  result = operandA == operandB; break;
+        case BOP_NE: result = operandA != operandB; break;
+        case BOP_LT:  result = operandA < operandB; break;
+        case BOP_GT:  result = operandA > operandB; break;
+        case BOP_LE: result = operandA <= operandB; break;
+        case BOP_GE: result = operandA >= operandB; break;
+        default: return cond; // unknown op
+    }
+
+    // based on the result return the node that we are going to subtitute the ternary node for
+    return result ? then_branch : else_branch ;
+}
+
 
 AST newAST(AstKind _kind) {
     AST node = (AST) malloc(sizeof(struct __AST)) ; 
@@ -124,12 +153,19 @@ AST ast_if(AST cond, AST then_branch, AST else_branch) {
     return n;
 }
 
+// modify this to prevent creating a ternenary node
 AST ast_ternary(AST cond, AST then_branch, AST else_branch) { // handle ternary node
-    AST n = newAST(AST_TERNARY);
-    n->ternary.cond = cond;
-    n->ternary.then_branch = then_branch;
-    n->ternary.else_branch = else_branch;
-    return n;
+    
+    if (cond->kind == AST_BINOP) { // if the condition is a binary operation evalutate
+        AST sub =  ternary_check(cond, then_branch, else_branch) ;
+        return sub ; // return the node that we are going to substitute the ternary for
+    }  else { // create a ternary node and return it.
+        AST n = newAST(AST_TERNARY);
+        n->ternary.cond = cond;
+        n->ternary.then_branch = then_branch;
+        n->ternary.else_branch = else_branch;
+        return n;
+    } 
 }
 
 AST ast_while(AST cond, AST body) {

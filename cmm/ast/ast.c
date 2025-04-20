@@ -60,11 +60,33 @@ const char * UONames[] = {
     "--",
 }  ; 
 
-AST ternary_check(AST cond, AST then_branch, AST else_branch) {
+int evaluate_expression(AST node) {
 
+    // if the node is a number return its value
+    if (node->kind == AST_INT) {
+        return node->ival;
+    }
 
-    int operandA = cond->binop.a->ival ; // get the first operand value
-    int operandB = cond->binop.b->ival ; // get the second operand value
+    // evalutate the expression and return its number
+    switch (node->binop.op) {
+        case BOP_PLUS: return evaluate_expression(node->binop.a) + evaluate_expression(node->binop.b);
+        case BOP_MINUS: return evaluate_expression(node->binop.a) - evaluate_expression(node->binop.b);
+        case BOP_MUL: return evaluate_expression(node->binop.a) * evaluate_expression(node->binop.b);
+        case BOP_DIV: return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) / evaluate_expression(node->binop.b) : 0; break;
+        default: return 0; // return 0 if for unknown binop
+    }
+    return 0 ;
+}
+
+AST ternary_check(AST node) {
+ 
+    AST cond = node->ternary.cond ; // get condition
+
+    int operandA = evaluate_expression(cond->binop.a) ; // get the first operand value and evalute it in case its an expression
+    int operandB = evaluate_expression(cond->binop.b) ; // get the second operand value and evalute it in case its an expression
+
+    AST then_branch = node->ternary.then_branch ; // store then_branch node
+    AST else_branch = node->ternary.else_branch ; // store else_branch node
 
     bool result; // store the result for the condition
 
@@ -80,10 +102,10 @@ AST ternary_check(AST cond, AST then_branch, AST else_branch) {
         case BOP_GT:  result = operandA > operandB; break;
         case BOP_LE: result = operandA <= operandB; break;
         case BOP_GE: result = operandA >= operandB; break;
-        default: return cond; // unknown op
+        default: return node; // unknown op
     }
 
-    // based on the result return the node that we are going to subtitute the ternary node for
+    // based on the result return the node we are going to traverse.
     return result ? then_branch : else_branch ;
 }
 
@@ -155,16 +177,15 @@ AST ast_if(AST cond, AST then_branch, AST else_branch) {
 
 // modify this to prevent creating a ternenary node
 AST ast_ternary(AST cond, AST then_branch, AST else_branch) { // handle ternary node
-    
+
+    AST n = newAST(AST_TERNARY);
+    n->ternary.cond = cond;
+    n->ternary.then_branch = then_branch;
+    n->ternary.else_branch = else_branch;
+
     if (cond->kind == AST_BINOP) { // if the condition is a binary operation evalutate
-        AST sub =  ternary_check(cond, then_branch, else_branch) ;
-        return sub ; // return the node that we are going to substitute the ternary for
-    }  else { // create a ternary node and return it.
-        AST n = newAST(AST_TERNARY);
-        n->ternary.cond = cond;
-        n->ternary.then_branch = then_branch;
-        n->ternary.else_branch = else_branch;
-        return n;
+        AST sub =  ternary_check(n) ;
+        return sub ; // return the node that we are going to substitute the ternary for or the ternary node
     } 
 }
 

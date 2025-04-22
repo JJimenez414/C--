@@ -88,7 +88,7 @@ void traverse(AST node) {
             }
             break;
         
-        case AST_TERNARY: // travers the ternary node
+        case AST_TERNARY: // traverse the ternary node
             traverse(node->ternary.cond);
             putchar(' ');
             _puts("?");

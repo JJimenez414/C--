@@ -1,3 +1,7 @@
+// ask about implementing exponents
+// memory arrangement
+
 int main(int argi[]) {
-    int folded = (4 < 3) ? (3+2 == 4) ? 1 : 2 : 3;
+    int a = 5, b = 3;
+    int result = (a > b) ? a + b : a - b;
 }

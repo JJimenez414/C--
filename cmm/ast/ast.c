@@ -60,19 +60,28 @@ const char * UONames[] = {
     "--",
 }  ; 
 
+int memory[25] = {0}; // store the value of all the variables
+
 int evaluate_expression(AST node) {
 
     // if the node is a number return its value
     if (node->kind == AST_INT) {
         return node->ival;
+    } else if ( node->kind == AST_SCALAR ){
+        printf("Variable val: %d\n", memory[node->name[0] - 'a']);
+        return memory[node->name[0] - 'a'];
+    }  else if(node->kind == AST_BOOL) {
+        return node->ival ? 1 : 0;
     }
 
-    // evalutate the expression and return its number
+    // evalutate the expression and return its result
     switch (node->binop.op) {
         case BOP_PLUS: return evaluate_expression(node->binop.a) + evaluate_expression(node->binop.b);
         case BOP_MINUS: return evaluate_expression(node->binop.a) - evaluate_expression(node->binop.b);
         case BOP_MUL: return evaluate_expression(node->binop.a) * evaluate_expression(node->binop.b);
+        // case BOP_EXP: return (int)pow(evaluate_expression(node->binop.a), evaluate_expression(node->binop.b));
         case BOP_DIV: return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) / evaluate_expression(node->binop.b) : 0; break;
+        case BOP_MOD: return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) % evaluate_expression(node->binop.b) : 0; break;
         default: return 0; // return 0 if for unknown binop
     }
     return 0 ;
@@ -84,6 +93,9 @@ AST ternary_check(AST node) {
 
     int operandA = evaluate_expression(cond->binop.a) ; // get the first operand value and evalute it in case its an expression
     int operandB = evaluate_expression(cond->binop.b) ; // get the second operand value and evalute it in case its an expression
+    
+    printf("operandA: %d\n", operandA);
+    printf("operandB: %d\n", operandB);
 
     AST then_branch = node->ternary.then_branch ; // store then_branch node
     AST else_branch = node->ternary.else_branch ; // store else_branch node
@@ -95,7 +107,9 @@ AST ternary_check(AST node) {
         case BOP_PLUS: result = operandA + operandB; break;
         case BOP_MINUS: result = operandA - operandB; break;
         case BOP_MUL: result = operandA * operandB; break;
+        // case BOP_EXP: result = pow(operandA, operandB); break; //(base, exponent)
         case BOP_DIV: result = operandB != 0 ? operandA / operandB : 0; break;
+        case BOP_MOD: result = operandB != 0 ? operandA % operandB : 0; break;
         case BOP_EQ:  result = operandA == operandB; break;
         case BOP_NE: result = operandA != operandB; break;
         case BOP_LT:  result = operandA < operandB; break;
@@ -130,16 +144,18 @@ AST ast_bool(int val) {
 
 AST ast_var_decl(char *type, AST vars) {
     AST n = newAST(AST_VAR_DECL) ; 
-    n->vdecl.type = type ;
-    n->vdecl.vars = vars ; 
+    n->vdecl.type = type ; // int
+    n->vdecl.vars = vars ; // a = 2;
     return n;
 }
 
 AST ast_vd_item(char *name, AST asize, AST init) {
     AST n = newAST(AST_VD_ITEM) ;
-    n->vd_item.name = name ; 
-    n->vd_item.asize = asize ; 
-    n->vd_item.init = init ;  
+    n->vd_item.name = name ; // a
+    n->vd_item.asize = asize ;  // null
+    n->vd_item.init = init ;  // 2
+    memory[name[0] - 'a'] = evaluate_expression(init); // save variable to memeory
+    printf("Viriable: %s saved: %d\n", name, memory[name[0] - 'a']);
     return n;
     
 }
@@ -175,7 +191,6 @@ AST ast_if(AST cond, AST then_branch, AST else_branch) {
     return n;
 }
 
-// modify this to prevent creating a ternenary node
 AST ast_ternary(AST cond, AST then_branch, AST else_branch) { // handle ternary node
 
     AST n = newAST(AST_TERNARY);

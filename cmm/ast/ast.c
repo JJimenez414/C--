@@ -60,16 +60,12 @@ const char * UONames[] = {
     "--",
 }  ; 
 
-int memory[25] = {0}; // store the value of all the variables
 
 int evaluate_expression(AST node) {
 
     // if the node is a number return its value
     if (node->kind == AST_INT) {
         return node->ival;
-    } else if ( node->kind == AST_SCALAR ){
-        printf("Variable val: %d\n", memory[node->name[0] - 'a']);
-        return memory[node->name[0] - 'a'];
     }  else if(node->kind == AST_BOOL) {
         return node->ival ? 1 : 0;
     }
@@ -156,8 +152,6 @@ AST ast_vd_item(char *name, AST asize, AST init) {
     n->vd_item.name = name ; // a
     n->vd_item.asize = asize ;  // null
     n->vd_item.init = init ;  // 2
-    memory[name[0] - 'a'] = evaluate_expression(init); // save variable to memeory
-    printf("Variable: %s saved: %d\n", name, memory[name[0] - 'a']);
     return n;
     
 }

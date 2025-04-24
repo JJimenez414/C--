@@ -82,6 +82,23 @@ int evaluate_expression(AST node) {
         // case BOP_EXP: return (int)pow(evaluate_expression(node->binop.a), evaluate_expression(node->binop.b));
         case BOP_DIV: return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) / evaluate_expression(node->binop.b) : 0; break;
         case BOP_MOD: return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) % evaluate_expression(node->binop.b) : 0; break;
+        // comparison exceptions
+        case BOP_LT:
+            return evaluate_expression(node->binop.a) < evaluate_expression(node->binop.b); break;
+        case BOP_LE:
+            return evaluate_expression(node->binop.a) <= evaluate_expression(node->binop.b); break;
+        case BOP_GT:
+            return evaluate_expression(node->binop.a) > evaluate_expression(node->binop.b); break;
+        case BOP_GE:
+            return evaluate_expression(node->binop.a) >= evaluate_expression(node->binop.b); break;
+        case BOP_EQ:
+            return evaluate_expression(node->binop.a) == evaluate_expression(node->binop.b); break;
+        case BOP_NE:
+            return evaluate_expression(node->binop.a) != evaluate_expression(node->binop.b); break;
+        case BOP_AND:
+            return evaluate_expression(node->binop.a) && evaluate_expression(node->binop.b); break;
+        case BOP_OR:
+            return evaluate_expression(node->binop.a) || evaluate_expression(node->binop.b); break;
         default: return 0; // return 0 if for unknown binop
     }
     return 0 ;
@@ -91,34 +108,19 @@ AST ternary_check(AST node) {
  
     AST cond = node->ternary.cond ; // get condition
 
-    int operandA = evaluate_expression(cond->binop.a) ; // get the first operand value and evalute it in case its an expression
-    int operandB = evaluate_expression(cond->binop.b) ; // get the second operand value and evalute it in case its an expression
-    
-    printf("operandA: %d\n", operandA);
-    printf("operandB: %d\n", operandB);
-
     AST then_branch = node->ternary.then_branch ; // store then_branch node
     AST else_branch = node->ternary.else_branch ; // store else_branch node
 
     bool result; // store the result for the condition
 
-    // depending on the condition, we will evaluate it
-    switch (cond->binop.op) {
-        case BOP_PLUS: result = operandA + operandB; break;
-        case BOP_MINUS: result = operandA - operandB; break;
-        case BOP_MUL: result = operandA * operandB; break;
-        // case BOP_EXP: result = pow(operandA, operandB); break; //(base, exponent)
-        case BOP_DIV: result = operandB != 0 ? operandA / operandB : 0; break;
-        case BOP_MOD: result = operandB != 0 ? operandA % operandB : 0; break;
-        case BOP_EQ:  result = operandA == operandB; break;
-        case BOP_NE: result = operandA != operandB; break;
-        case BOP_LT:  result = operandA < operandB; break;
-        case BOP_GT:  result = operandA > operandB; break;
-        case BOP_LE: result = operandA <= operandB; break;
-        case BOP_GE: result = operandA >= operandB; break;
-        default: return node; // unknown op
+    // Don't apply constant folding to AND, OR, ASSIGN operations.
+    if(cond->binop.op == BOP_AND || cond->binop.op == BOP_OR || cond->binop.op == BOP_ASSIGN) {
+        return node;
     }
-
+    else {
+        result = evaluate_expression(cond);
+    }
+    
     // based on the result return the node we are going to traverse.
     return result ? then_branch : else_branch ;
 }
@@ -131,7 +133,7 @@ AST newAST(AstKind _kind) {
 }
 
 AST ast_int(int val) {
-    AST n = newAST(AST_INT) ; 
+    AST n = newAST(AST_INT) ;
     n->ival = val;
     return n;
 }
@@ -155,7 +157,7 @@ AST ast_vd_item(char *name, AST asize, AST init) {
     n->vd_item.asize = asize ;  // null
     n->vd_item.init = init ;  // 2
     memory[name[0] - 'a'] = evaluate_expression(init); // save variable to memeory
-    printf("Viriable: %s saved: %d\n", name, memory[name[0] - 'a']);
+    printf("Variable: %s saved: %d\n", name, memory[name[0] - 'a']);
     return n;
     
 }
@@ -201,7 +203,7 @@ AST ast_ternary(AST cond, AST then_branch, AST else_branch) { // handle ternary 
     if (cond->kind == AST_BINOP) { // if the condition is a binary operation evalutate
         AST sub =  ternary_check(n) ;
         return sub ; // return the node that we are going to substitute the ternary for or the ternary node
-    } 
+    }
 }
 
 AST ast_while(AST cond, AST body) {

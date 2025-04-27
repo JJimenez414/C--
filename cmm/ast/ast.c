@@ -97,7 +97,7 @@ int evaluate_expression(AST node) {
             return evaluate_expression(node->binop.a) || evaluate_expression(node->binop.b); break;
         default: return 0; // return 0 if for unknown binop
     }
-    return 0 ;
+    return -1 ;
 }
 
 AST ternary_check(AST node) {

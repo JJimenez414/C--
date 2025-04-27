@@ -68,6 +68,8 @@ int evaluate_expression(AST node) {
         return node->ival;
     }  else if(node->kind == AST_BOOL) {
         return node->ival ? 1 : 0;
+    } else if(node->kind == AST_SCALAR) {
+        return -1;
     }
 
     // evalutate the expression and return its result

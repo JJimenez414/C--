@@ -2,5 +2,5 @@
 // memory arrangement
 
 int main(int argi[]) {
-    int result = 3 + 2 > 3 + 1 ? 1 : 0;
+    int result = (a + 1 + 1 + 1 == 2) ? 1 : 0;
 }

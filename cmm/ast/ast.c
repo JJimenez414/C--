@@ -60,6 +60,17 @@ const char * UONames[] = {
     "--",
 }  ; 
 
+// function to evaluate exponents
+int power(int number, int exponent) {
+
+    int result = 1;
+
+    for ( int i = 0; i < exponent; i++) {
+        result *= number;
+    }
+
+    return result;
+}
 
 int evaluate_expression(AST node) {
 
@@ -74,12 +85,18 @@ int evaluate_expression(AST node) {
 
     // evalutate the expression and return its result
     switch (node->binop.op) {
-        case BOP_PLUS: return evaluate_expression(node->binop.a) + evaluate_expression(node->binop.b);
-        case BOP_MINUS: return evaluate_expression(node->binop.a) - evaluate_expression(node->binop.b);
-        case BOP_MUL: return evaluate_expression(node->binop.a) * evaluate_expression(node->binop.b);
-        // case BOP_EXP: return (int)pow(evaluate_expression(node->binop.a), evaluate_expression(node->binop.b));
-        case BOP_DIV: return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) / evaluate_expression(node->binop.b) : 0; break;
-        case BOP_MOD: return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) % evaluate_expression(node->binop.b) : 0; break;
+        case BOP_PLUS: 
+            return evaluate_expression(node->binop.a) + evaluate_expression(node->binop.b);
+        case BOP_MINUS: 
+            return evaluate_expression(node->binop.a) - evaluate_expression(node->binop.b);
+        case BOP_MUL: 
+            return evaluate_expression(node->binop.a) * evaluate_expression(node->binop.b);
+        case BOP_EXP:
+            return power(evaluate_expression(node->binop.a), evaluate_expression(node->binop.b));
+        case BOP_DIV: 
+            return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) / evaluate_expression(node->binop.b) : 0; break;
+        case BOP_MOD: 
+            return evaluate_expression(node->binop.b) != 0 ? evaluate_expression(node->binop.a) % evaluate_expression(node->binop.b) : 0; break;
         // comparison exceptions
         case BOP_LT:
             return evaluate_expression(node->binop.a) < evaluate_expression(node->binop.b); break;
@@ -99,7 +116,7 @@ int evaluate_expression(AST node) {
             return evaluate_expression(node->binop.a) || evaluate_expression(node->binop.b); break;
         default: return 0; // return 0 if for unknown binop
     }
-    return -1 ;
+    return -1 ; // default value
 }
 
 AST ternary_check(AST node) {
@@ -113,7 +130,7 @@ AST ternary_check(AST node) {
 
     // Don't apply constant folding to AND, OR, ASSIGN operations.
     if(cond->binop.op == BOP_AND || cond->binop.op == BOP_OR || cond->binop.op == BOP_ASSIGN) {
-        return node;
+        return node; // return the original ternary node if it cant be constant folded
     }
     else {
         result = evaluate_expression(cond);
@@ -191,6 +208,7 @@ AST ast_if(AST cond, AST then_branch, AST else_branch) {
 
 AST ast_ternary(AST cond, AST then_branch, AST else_branch) { // handle ternary node
 
+    // make a ternary node
     AST n = newAST(AST_TERNARY);
     n->ternary.cond = cond;
     n->ternary.then_branch = then_branch;
@@ -198,7 +216,7 @@ AST ast_ternary(AST cond, AST then_branch, AST else_branch) { // handle ternary 
 
     if (cond->kind == AST_BINOP) { // if the condition is a binary operation evalutate
         AST sub =  ternary_check(n) ;
-        return sub ; // return the node that we are going to substitute the ternary for or the ternary node
+        return sub ; // return a node that we are going to substitute the ternary for, if possible.
     }
 }
 

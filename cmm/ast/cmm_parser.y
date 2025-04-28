@@ -33,7 +33,7 @@ AST PROGRAM; // make it global, so main() can get it.
 %token TERNARY_IF TERNARY_ELSE // are tokens for ternary: TERNARY_IF = ? TERNARY_ELSE = :
 
 /* Operator Precedence */
-%right TERNARY_IF TERNARY_ELSE // are tokens for ternary: TERNARY_IF = ? TERNARY_ELSE = :
+%right TERNARY_IF TERNARY_ELSE // set precedence for ternary operators
 %right ASSIGN
 %left OR
 %left AND
